@@ -1,0 +1,10 @@
+# To initialise a new folder and project sub-folder, and open up scrapy
+mkdir [folder_name] creates a new folder in the directory called [folder_name]
+scrapy startproject [project_name] creates a new folder called [project_name] under [folder_name]
+cd [project_name] into [project_name] directory
+cd spiders
+scrapy genspider [project_name] [website.com]
+
+# Commands that can be referenced in Scrapy
+scrapy crawl [project_name] -- Enable the Spider to start crawling
+scrapy shell -- Provides you with a directory of what commands you can use
