@@ -28,7 +28,7 @@ class BookscraperPipeline:
             adapter[lowercase_key] = value.lower()
 
         # Price -> Convert to float
-        price_keys = ['price_exclude_tax', 'price_include_tax', 'tax']
+        price_keys = ['price','price_exclude_tax', 'price_include_tax', 'tax']
         for price_key in price_keys: 
             value = adapter.get(price_key)
             value = value.replace('£', '')
