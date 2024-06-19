@@ -17,7 +17,7 @@ FEEDS = {
     'booksdata.json' : {'format': 'json'}
 }
 
-SCRAPEOPS_API_KEY = '07c62a64-e476-48d2-a743-1fb4d8bbddcd'
+SCRAPEOPS_API_KEY = '21aa406b-2c27-46ed-87b0-3ddc3e4740d6'
 SCRAPEOPS_FAKE_USER_AGENT_ENDPOINT = 'https://headers.scrapeops.io/v1/user-agents'
 SCRAPEOPS_FAKE_USER_AGENT_ENABLED = True
 SCRAPEOPS_NUM_RESULTS = 50
@@ -27,7 +27,15 @@ SCRAPEOPS_NUM_RESULTS = 50
 # USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False 
+
+# Insert your list of proxies here 
+REMOTE_PROXY_LIST = [
+    '66.135.227.178:4145',
+    '128.199.165.63:34438',
+    '100.1.53.24:5678',
+]
+
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -60,9 +68,15 @@ ROBOTSTXT_OBEY = True
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
+# Lower number has a higher priority
+DOWNLOADER_MIDDLEWARES = {
 #    "bookscraper.middlewares.BookscraperDownloaderMiddleware": 543,
-#}
+    "bookscraper.middlewares.ScrapeOpsFakeUserAgentMiddleware": 400,
+    "bookscraper.middlewares.ScrapeOpsFakeBrowserHeaderAgentMiddleware": None,
+    # 'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
+    # 'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
+}
+
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html

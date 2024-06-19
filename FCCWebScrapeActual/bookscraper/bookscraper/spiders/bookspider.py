@@ -3,13 +3,22 @@ from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from bookscraper.items import BookItem
 import random
+from urllib.parse import urlencode
+
+
+# API_KEY = '07c62a64-e476-48d2-a743-1fb4d8bbddcd'
+# def get_proxy_url(url):
+#     payload = {'api_key': API_KEY, 'url': url}
+#     proxy_url = 'https://proxy.scrapeops.io/v1/?' + urlencode(payload)
+#     return proxy_url
+
 
 class BookspiderSpider(scrapy.Spider):
     # name is for us to later use it for command line calling of "scrapy crawl [name]"
     name = "bookspider"
     # allowed_domains list limits the websites the spiders are allowed to crawl, since spiders can crawl through the 
     # websites which have url links which may lead to other external websites outside of what is required
-    allowed_domains = ["books.toscrape.com"]
+    allowed_domains = ["books.toscrape.com", "scrapeops.io"]
     # first URL that the spider will crawl, can have multiple URLs
     start_urls = ["https://books.toscrape.com"]
     
@@ -20,14 +29,18 @@ class BookspiderSpider(scrapy.Spider):
             'booksdata.json' : {'format': 'json', 'overwrite':True}
         }
     }
+    # # Scrapy looks for this function when you start up this function. Only for Proxy
+    # def start_requests(self): 
+    #     yield scrapy.Request(url=get_proxy_url(self.start_urls[0]), callback=self.parse)
     
-    user_agent_list = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36',
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 14_4_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Mobile/15E148 Safari/604.1',
-    'Mozilla/4.0 (compatible; MSIE 9.0; Windows NT 6.1)',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36 Edg/87.0.664.75',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18363',
-    ]
+    # Manual Way of randomising your list of user agents
+    # user_agent_list = [
+    # 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36',
+    # 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_4_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Mobile/15E148 Safari/604.1',
+    # 'Mozilla/4.0 (compatible; MSIE 9.0; Windows NT 6.1)',
+    # 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36 Edg/87.0.664.75',
+    # 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18363',
+    # ]
 
 
     def parse(self, response):
@@ -39,7 +52,9 @@ class BookspiderSpider(scrapy.Spider):
                 book_url = "https://books.toscrape.com/" + relative_url
             else: 
                 book_url = "https://books.toscrape.com/catalogue/" + relative_url
-            yield response.follow(book_url, callback=self.parse_book_page, headers={"User-Agent": self.user_agent_list[random.randint(0, len(self.user_agent_list)-1)]}) 
+            # yield scrapy.Request(url=get_proxy_url(book_url), callback=self.parse_book_page)
+            # This is done without the Scrapy proxy 
+            yield response.follow(book_url, callback=self.parse_book_page) 
         
         next_page = response.css('li.next a ::attr(href)').get()
         if next_page is not None: 
@@ -47,7 +62,9 @@ class BookspiderSpider(scrapy.Spider):
                 next_page_url = "https://books.toscrape.com/" + next_page
             else: 
                 next_page_url = "https://books.toscrape.com/catalogue/" + next_page
-            yield response.follow(next_page_url, callback=self.parse, headers={"User-Agent": self.user_agent_list[random.randint(0, len(self.user_agent_list)-1)]})
+            # yield response.follow(url=get_proxy_url(next_page_url), callback=self.parse)
+            yield response.follow(next_page_url, callback=self.parse)
+            
                 
     def parse_book_page(self, response):
         table_rows = response.css("table tr")
